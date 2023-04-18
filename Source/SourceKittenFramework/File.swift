@@ -14,29 +14,20 @@ public final class File {
     public let path: String?
     /// File contents.
     public var contents: String {
-        get {
-            _contentsQueue.sync {
+        get throws {
+            try _contentsQueue.sync {
                 if _contents == nil {
-                    do {
-                        _contents = try String(contentsOfFile: path!, encoding: .utf8)
-                    } catch {
-                        fputs("Could not read contents of `\(path!)`\n", stderr)
-                        _contents = ""
-                    }
+                    _contents = try String(contentsOfFile: path!, encoding: .utf8)
                 }
             }
             return _contents!
         }
-        set {
-            _contentsQueue.sync {
-                _contents = newValue
-                _stringViewQueue.sync {
-                    _stringView = nil
-                }
-            }
-        }
     }
-
+    
+    internal var safeContents: String {
+        (try? contents) ?? ""
+    }
+    
     public func clearCaches() {
         _contentsQueue.sync {
             _contents = nil
@@ -49,7 +40,7 @@ public final class File {
     public var stringView: StringView {
         _stringViewQueue.sync {
             if _stringView == nil {
-                _stringView = StringView(contents)
+                _stringView = StringView(safeContents)
             }
         }
         return _stringView!
@@ -105,7 +96,7 @@ public final class File {
                        useTabs: Bool,
                        indentWidth: Int) throws -> String {
         guard let path = path else {
-            return contents
+            return safeContents
         }
         _ = try Request.editorOpen(file: self).send()
         var newContents = [String]()
@@ -197,7 +188,7 @@ public final class File {
         precondition(SwiftDocKey.getKind(dictionary)! == SyntaxKind.commentMark.rawValue)
         let offset = SwiftDocKey.getOffset(dictionary)!.value
         let length = SwiftDocKey.getLength(dictionary)!.value
-        let fileContentsData = contents.data(using: .utf8)
+        let fileContentsData = safeContents.data(using: .utf8)
         let subdata = fileContentsData?.subdata(in: offset..<(offset + length))
         return subdata.flatMap { String(data: $0, encoding: .utf8) }
     }
@@ -423,7 +414,7 @@ public final class File {
            case let start = commentRange.lowerBound,
            case let end = commentRange.upperBound,
            let nsRange = stringView.byteRangeToNSRange(ByteRange(location: start, length: end - start)),
-           let commentBody = contents.commentBody(range: nsRange) {
+           let commentBody = safeContents.commentBody(range: nsRange) {
            dictionary[SwiftDocKey.documentationComment.rawValue] = commentBody
         }
 

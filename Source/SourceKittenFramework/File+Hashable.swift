@@ -4,13 +4,13 @@ extension File: Hashable {
         case let (.some(lhsPath), .some(rhsPath)):
             return lhsPath == rhsPath
         case (.none, .none):
-            return lhs.contents == rhs.contents
+            return lhs.safeContents == rhs.safeContents
         default:
             return false
         }
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(path ?? contents)
+        hasher.combine(path ?? safeContents)
     }
 }

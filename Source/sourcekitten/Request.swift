@@ -15,7 +15,7 @@ extension SourceKitten {
 
             let yaml: String
             if let file = File(path: self.yaml) {
-                yaml = file.contents
+                yaml = (try? file.contents) ?? ""
             } else {
                 yaml = self.yaml
             }

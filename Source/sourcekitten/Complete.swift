@@ -30,7 +30,7 @@ extension SourceKitten {
                 guard let file = File(path: path) else {
                     throw SourceKittenError.readFailed(path: path)
                 }
-                contents = file.contents
+                contents = (try? file.contents) ?? ""
             } else {
                 path = "\(NSUUID().uuidString).swift"
                 contents = text

@@ -174,8 +174,8 @@ public enum Request {
             } else {
                 return [
                     "key.request": UID("source.request.editor.open"),
-                    "key.name": String(abs(file.contents.hash)),
-                    "key.sourcetext": file.contents
+                    "key.name": String(abs(file.safeContents.hash)),
+                    "key.sourcetext": file.safeContents
                 ]
             }
         case let .cursorInfo(file, offset, arguments):
@@ -283,8 +283,8 @@ public enum Request {
             } else {
                 return [
                     "key.request": UID("source.request.editor.open"),
-                    "key.name": String(abs(file.contents.hash)),
-                    "key.sourcetext": file.contents,
+                    "key.name": String(abs(file.safeContents.hash)),
+                    "key.sourcetext": file.safeContents,
                     "key.enablesyntaxmap": 0,
                     "key.enablesubstructure": 0,
                     "key.enablesyntaxtree": 1,

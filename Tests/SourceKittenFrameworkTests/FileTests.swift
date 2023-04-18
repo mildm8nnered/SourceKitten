@@ -1,4 +1,4 @@
-import SourceKittenFramework
+@testable import SourceKittenFramework
 import XCTest
 
 class FileTests: XCTestCase {
@@ -21,6 +21,6 @@ class FileTests: XCTestCase {
 
     func testNonUTF8Files() throws {
         let file = File(pathDeferringReading: fixturesDirectory + "NonUTF8File")
-        XCTAssertEqual(file.contents, "")
+        XCTAssertEqual(file.safeContents, "")
     }
 }
